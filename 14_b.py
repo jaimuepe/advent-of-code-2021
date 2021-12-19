@@ -2,6 +2,8 @@
 import my_io
 import io
 
+# ugliest code ever writter, probably
+
 input = my_io.get_clipboard_contents()
 
 uniques = set()
