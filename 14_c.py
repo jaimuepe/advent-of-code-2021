@@ -16,17 +16,19 @@ for i in range(2, len(lines)):
 
 replacements = dict()
 
+# generate replacements from 0-10 steps
+
 for key in rules:
 
     replacement = rules[key]
 
     seq = key
 
-    reps = 16 * [None]
+    reps = 41 * [None]
 
     reps[0] = seq
 
-    for i in range(1, 16):
+    for i in range(1, 11):
 
         next_index = 0
 
@@ -46,23 +48,63 @@ for key in rules:
 
     replacements[key] = reps
 
-chain = template
+# generate replacements for 20 steps
 
-for i in [15, 15, 10]:
+
+
+for key in rules:
+
+    reps = replacements[key]
+
+    seq = reps[10]
 
     buff = io.StringIO()
 
-    for j in range(0, len(chain) - 1, 1):
+    for j in range(0, len(seq) - 1, 1):
 
-        pair = chain[j:j+2]
-        rep = replacements[pair][i]
+        pair = seq[j:j+2]
+        rep = replacements[pair][10]
 
         buff.write(rep[:len(rep)-1])
 
     buff.write(rep[-1:])
-    chain = buff.getvalue()
 
-    # print(len(chain))
+    reps[20] = buff.getvalue()
+
+# iterate template and count
+
+for j in range(0, len(template) - 1, 1):
+
+    pair = template[j:j+2]
+    rep = replacements[pair][i]
+
+    buff.write(rep[:len(rep)-1])
+
+buff.write(rep[-1:])
+chain = buff.getvalue()
+
+# generate replacements for 40 steps
+
+for key in rules:
+
+    reps = replacements[key]
+
+    seq = reps[20]
+
+    segments = [None] * (len(seq) + 1)
+
+    for j in range(0, len(seq)):
+
+        pair = seq[j:j+2]
+        rep = replacements[pair][20]
+
+        segments[j] = rep[:len(rep)-1]
+
+    segments[j + 1] = rep[-1:]
+
+    reps[40] = ''.join(segments)
+
+chain = template
 
 hits = dict()
 
