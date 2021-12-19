@@ -4,17 +4,30 @@ import io
 
 input = my_io.get_clipboard_contents()
 
+uniques = set()
+
 lines = input.splitlines()
 
 template = lines[0]
 
+for c in template:
+    uniques.add(c)
+
 rules = dict()
 
 for i in range(2, len(lines)):
+
     (key, value) = lines[i].split(' -> ')
     rules[key] = value
 
+    (k1, k2) = key
+    uniques.add(k1)
+    uniques.add(k2)
+    uniques.add(value)
+
 replacements = dict()
+
+# generate replacements from 0-10 steps
 
 for key in rules:
 
@@ -22,11 +35,11 @@ for key in rules:
 
     seq = key
 
-    reps = 16 * [None]
+    reps = 21 * [None]
 
     reps[0] = seq
 
-    for i in range(1, 16):
+    for i in range(1, 11):
 
         next_index = 0
 
@@ -46,39 +59,68 @@ for key in rules:
 
     replacements[key] = reps
 
-chain = template
+# generate replacements for 20 steps
 
-for i in [15, 15, 10]:
+for key in rules:
+
+    reps = replacements[key]
+
+    seq = reps[10]
 
     buff = io.StringIO()
 
-    for j in range(0, len(chain) - 1, 1):
+    for j in range(0, len(seq) - 1):
 
-        pair = chain[j:j+2]
-        rep = replacements[pair][i]
+        pair = seq[j:j+2]
+        rep = replacements[pair][10]
 
         buff.write(rep[:len(rep)-1])
 
     buff.write(rep[-1:])
-    chain = buff.getvalue()
 
-    # print(len(chain))
+    reps[20] = buff.getvalue()
+
+template20 = ''
+
+for i in range(0, len(template) - 1):
+
+    pair = template[i:i+2]
+    rep = replacements[pair][20]
+
+    template20 += rep[:len(rep) - 1]
+template20 += rep[-1:]
 
 hits = dict()
 
-for c in chain:
-    if c in hits:
-        hits[c] += 1
-    else:
-        hits[c] = 1
+hits_dict = dict()
 
-most_common = float('-inf')
-least_common = float('inf')
+for key in rules:
 
-for c in hits:
-    if hits[c] > most_common:
-        most_common = hits[c]
-    elif hits[c] < least_common:
-        least_common = hits[c]
+    hits_dict[key] = dict()
 
-print(most_common - least_common)
+    for k in uniques:
+        hits_dict[key][k] = 0
+
+    rep = replacements[key][20]
+
+    for i in range(0, len(rep) - 1):
+
+        c = rep[i]
+        hits_dict[key][c] += 1
+
+hits = dict()
+
+for k in uniques:
+    hits[k] = 0
+
+for i in range(0, len(template20) - 1):
+
+    pair = template20[i: i+2]
+    hits20 = hits_dict[pair]
+
+    for k in uniques:
+        hits[k] += hits20[k]
+
+hits[template20[len(template20) - 1]] += 1
+
+print(hits)
