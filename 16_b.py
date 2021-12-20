@@ -152,28 +152,10 @@ class Sequence:
 
         return packet
 
-
-map = dict()
-map['0'] = '0000'
-map['1'] = '0001'
-map['2'] = '0010'
-map['3'] = '0011'
-map['4'] = '0100'
-map['5'] = '0101'
-map['6'] = '0110'
-map['7'] = '0111'
-map['8'] = '1000'
-map['9'] = '1001'
-map['A'] = '1010'
-map['B'] = '1011'
-map['C'] = '1100'
-map['D'] = '1101'
-map['E'] = '1110'
-map['F'] = '1111'
-
 line = lines[0]
 
-binary_string = ''.join([map[x] for x in line])
+h_size = len(line) * 4
+binary_string = (bin(int(line, 16))[2:]).zfill(h_size)
 
 seq = Sequence(binary_string)
 
